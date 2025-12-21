@@ -6,9 +6,9 @@ import java.util.List;
 
 public interface ProductService {
     /**
-     *
-     * @param company
-     * @return
+     * Servicio encargado de realizar la logica del negocio para obtener los productos
+     * @param company identificación de la empresa
+     * @return Listado de productos
      */
     List<Product> getAllProduct(Long company);
 }

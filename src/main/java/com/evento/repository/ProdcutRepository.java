@@ -6,9 +6,9 @@ import java.util.List;
 
 public interface ProdcutRepository {
     /**
-     *
-     * @param company
-     * @return
+     * Repositorio encargado de obtener de la tabla de productos los productos por empresa
+     * @param company identificación de la empresa
+     * @return Listado de productos
      */
     List<Product> getAllProducts(Long company);
 }

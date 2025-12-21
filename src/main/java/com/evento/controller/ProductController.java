@@ -11,9 +11,9 @@ import java.util.List;
 public interface ProductController {
 
     /**
-     *
-     * @param company
-     * @return
+     * Este punto de entrada te permite obtener todo los producto por empresa
+     * @param company identificación de la empresa
+     * @return Listado de productos
      */
     @GetMapping("/getProduct")
     ResponseEntity<List<Product>> getAllProducts(@RequestParam Long company);
