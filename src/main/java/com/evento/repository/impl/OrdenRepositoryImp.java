@@ -20,32 +20,36 @@ public class OrdenRepositoryImp implements OrdenRepository {
     public List<Product> getOrdenProduct(Long company, Long date) {
         try {
             return jdbcClient.sql("""
-                                SELECT
-                                    p.id_product,
-                                    p.nombre,
-                                    p.company,
-                                    p.price,
-                                    p.status,
-                                    p.color,
-                                    p.image_base64 AS imagen,
-                                    SUM(d.quantity) AS total_quantity,
-                                    0 AS disponible_quantity
-                                FROM "orden" o
-                                JOIN detail_orden d
-                                    ON d.orden_id = o.id_orden
-                                JOIN "product" p
-                                    ON p.id_product = d.product_id
-                                WHERE o.company = :company
-                                  AND o.orden_date = :date
-                                GROUP BY
-                                    p.id_product,
-                                    p.nombre,
-                                    p.company,
-                                    p.price,
-                                    p.status,
-                                    p.color,
-                                    p.image_base64
-                                ORDER BY total_quantity DESC
+                            SELECT
+                                p.id_product,
+                                p.nombre,
+                                p.company,
+                                p.price,
+                                p.status,
+                                p.color,
+                                p.image_base64 AS imagen,
+                                COALESCE(SUM(d.quantity), 0) AS total_quantity,
+                                (s.quantity - COALESCE(SUM(d.quantity), 0)) AS available
+                            FROM stock s
+                            JOIN product p
+                                ON p.id_product = s.product_id
+                            LEFT JOIN detail_orden d
+                                ON d.product_id = p.id_product
+                            LEFT JOIN "orden" o
+                                ON o.id_orden = d.orden_id
+                               AND o.company = :company
+                               AND o.orden_date = :date
+                            WHERE s.company = :company
+                            GROUP BY
+                                p.id_product,
+                                p.nombre,
+                                p.company,
+                                p.price,
+                                p.status,
+                                p.color,
+                                p.image_base64,
+                                s.quantity
+                            ORDER BY total_quantity DESC;
                             """)
                     .param("company", company)
                     .param("date", date)

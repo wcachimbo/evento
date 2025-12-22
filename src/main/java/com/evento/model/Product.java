@@ -11,7 +11,7 @@ public record Product(
         String color,
         String imagen,
         int total_quantity,
-        int disponible_quantity
+        int available
 
 ) {
 }
