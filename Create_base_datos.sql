@@ -104,3 +104,7 @@ CHECK (quantity > 0);
 ALTER TABLE product
 ADD COLUMN image_base64 TEXT;
 
+ALTER TABLE product RENAME COLUMN descripcion TO description;
+ALTER TABLE orden ADD phone varchar(20) NOT NULL;
+ALTER TABLE detail_orden ADD priceunit numeric(12, 2) NOT NULL;
+

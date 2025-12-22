@@ -1,0 +1,8 @@
+/home/pyt24/Documentos/Personal/AppEventoIrmitaIonic /evento/src/main/java/com/evento/EventoApplication.java
+/home/pyt24/Documentos/Personal/AppEventoIrmitaIonic /evento/src/main/java/com/evento/controller/ProductController.java
+/home/pyt24/Documentos/Personal/AppEventoIrmitaIonic /evento/src/main/java/com/evento/controller/impl/ProductControllerImpl.java
+/home/pyt24/Documentos/Personal/AppEventoIrmitaIonic /evento/src/main/java/com/evento/model/Product.java
+/home/pyt24/Documentos/Personal/AppEventoIrmitaIonic /evento/src/main/java/com/evento/repository/ProdcutRepository.java
+/home/pyt24/Documentos/Personal/AppEventoIrmitaIonic /evento/src/main/java/com/evento/repository/impl/ProdcutRepositoryImp.java
+/home/pyt24/Documentos/Personal/AppEventoIrmitaIonic /evento/src/main/java/com/evento/service/ProductService.java
+/home/pyt24/Documentos/Personal/AppEventoIrmitaIonic /evento/src/main/java/com/evento/service/impl/ProductServiceImpl.java

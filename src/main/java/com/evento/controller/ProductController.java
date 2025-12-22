@@ -1,5 +1,6 @@
 package com.evento.controller;
 
+import com.evento.model.ApiResponse;
 import com.evento.model.Product;
 import lombok.NonNull;
 import org.springframework.http.ResponseEntity;
@@ -16,5 +17,5 @@ public interface ProductController {
      * @return Listado de productos
      */
     @GetMapping("/getProduct")
-    ResponseEntity<List<Product>> getAllProducts(@RequestParam Long company);
+    ResponseEntity<@NonNull ApiResponse> getAllProducts(@RequestParam Long company);
 }

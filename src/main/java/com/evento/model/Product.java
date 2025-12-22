@@ -3,12 +3,15 @@ package com.evento.model;
 import java.math.BigDecimal;
 
 public record Product(
-
-        Long idProduct,
-        Long company,
+        Long id_product,
         String nombre,
+        Long company,
         BigDecimal price,
-        Boolean status
+        Boolean status,
+        String color,
+        String imagen,
+        int total_quantity,
+        int disponible_quantity
 
 ) {
 }
