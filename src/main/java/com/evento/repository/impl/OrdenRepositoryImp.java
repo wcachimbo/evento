@@ -7,7 +7,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @Slf4j
@@ -60,4 +62,40 @@ public class OrdenRepositoryImp implements OrdenRepository {
             return List.of();
         }
     }
+
+    @Override
+    public Optional<Long> insertOrden(
+            int company,
+            Integer ordenDate,
+            String address,
+            String status,
+            String phone,
+            BigDecimal subtotal,
+            BigDecimal total,
+            String description
+    ) {
+        try {
+            return jdbcClient.sql("""
+                            INSERT INTO "orden"
+                            (company, orden_date, address, status, phone, subtotal, total, description)
+                            VALUES
+                            (:company, :ordenDate, :address, :status, :phone, :subtotal, :total, :description)
+                            RETURNING id_orden
+                            """)
+                    .param("company", company)
+                    .param("ordenDate", ordenDate)
+                    .param("address", address)
+                    .param("status", status)
+                    .param("phone", phone)
+                    .param("subtotal", subtotal)
+                    .param("total", total)
+                    .param("description", description)
+                    .query(Long.class)
+                    .optional();
+        } catch (Exception e) {
+            log.error("Error insertando la orden - {}", e.getMessage(), e);
+            throw new RuntimeException("No se pudo crear la orden", e);
+        }
+    }
+
 }

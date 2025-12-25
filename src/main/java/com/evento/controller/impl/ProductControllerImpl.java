@@ -21,16 +21,17 @@ public class ProductControllerImpl implements ProductController {
 
     private final ProductService productService;
 
-        @Override
-        public ResponseEntity<@NonNull ApiResponse> getAllProducts(@RequestParam Long company) {
+    @Override
+    public ResponseEntity<@NonNull ApiResponse> getAllProducts(@RequestParam Long company) {
 
-            var products = productService.getAllProduct(company);
-            var resp = new ApiResponse<>(
-                    "0000",
-                    "Consulta exitosa",
-                    products
-            );
+        var products = productService.getAllProduct(company);
+        var resp = new ApiResponse<>(
+                "0000",
+                "Consulta exitosa",
+                products
+        );
+        log.info("Consulta de productos existosa");
 
-            return ResponseEntity.ok(resp);
-        }
+        return ResponseEntity.ok(resp);
+    }
 }
