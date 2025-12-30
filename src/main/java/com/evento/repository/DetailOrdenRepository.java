@@ -21,7 +21,20 @@ public interface DetailOrdenRepository {
             int company,
             int idOrden,
             int idProduct,
+            int idClient,
             int quantity,
             BigDecimal amount,
             BigDecimal priceUnit);
+
+    /**
+     * Elimina todos los productos asociados a una orden específica.
+     * <p>
+     * Este método remueve los registros de detalle de la orden indicada,
+     * identificándolos por empresa y por el identificador de la orden.
+     * </p>
+     *
+     * @param company identificador de la empresa propietaria de la orden
+     * @param idOrden identificador único de la orden cuyos productos serán eliminados
+     */
+    void deleteOrdenProduct(int company, Long idOrden);
 }

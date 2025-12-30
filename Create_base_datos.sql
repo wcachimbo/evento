@@ -1,17 +1,17 @@
 CREATE TABLE client (
-    id_client BIGSERIAL NOT NULL,
+    id_client BIGSERIAL PRIMARY KEY,
     company BIGINT NOT NULL,
-    phone VARCHAR(20) NOT NULL,
     name_client VARCHAR(100) NOT NULL,
+    phone VARCHAR(20) NOT NULL,
+    address VARCHAR(100) NOT NULL,
     alias VARCHAR(100) NOT NULL,
     description VARCHAR(500),
 
-    CONSTRAINT pk_client
-        PRIMARY KEY (id_client, company, phone)
+    CONSTRAINT uq_client_company_phone UNIQUE (company, phone)
 );
 
-CREATE INDEX idx_client_company ON client(company);
-CREATE INDEX idx_client_phone ON client(phone);
+CREATE INDEX idx_client_company ON public.client(company);
+CREATE INDEX idx_client_phone ON public.client(phone);
 
 CREATE TABLE product (
     id_product BIGSERIAL NOT NULL,
@@ -74,6 +74,7 @@ CREATE TABLE detail_orden (
     company BIGINT NOT NULL,
     orden_id BIGINT NOT NULL,
     product_id BIGINT NOT NULL,
+    client_id BIGINT NOT NULL,
     quantity INTEGER NOT NULL,
     amount NUMERIC(12,2) NOT NULL,
 
@@ -87,11 +88,16 @@ CREATE TABLE detail_orden (
     CONSTRAINT fk_detail_product
         FOREIGN KEY (product_id, company)
         REFERENCES product (id_product, company)
+
+    CONSTRAINT fk_detail_client
+        FOREIGN KEY (client_id)
+        REFERENCES client (id_client)
 );
 
 CREATE INDEX idx_detail_orden_company ON detail_orden(company);
 CREATE INDEX idx_detail_orden_orden ON detail_orden(orden_id);
 CREATE INDEX idx_detail_orden_product ON detail_orden(product_id);
+CREATE INDEX idx_detail_orden_client ON detail_orden(client_id);
 
 ALTER TABLE stock
 ADD CONSTRAINT chk_stock_quantity
@@ -107,4 +113,11 @@ ADD COLUMN image_base64 TEXT;
 ALTER TABLE product RENAME COLUMN descripcion TO description;
 ALTER TABLE orden ADD phone varchar(20) NOT NULL;
 ALTER TABLE detail_orden ADD priceunit numeric(12, 2) NOT NULL;
+ALTER TABLE public.client ADD address varchar(100) NOT NULL;
+ALTER TABLE public.orden DROP COLUMN address;
+ALTER TABLE public.orden DROP COLUMN phone;
+
+ALTER TABLE orden ADD subtotal  NUMERIC(12,2) NOT NULL;
+ALTER TABLE orden ADD total  NUMERIC(12,2) NOT NULL;
+
 

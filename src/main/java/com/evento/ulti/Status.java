@@ -7,6 +7,7 @@ public enum Status {
 
     PENDIENTE("P", "Pendiente"),
     CONFIRMADO("C", "Confirmado"),
+    PAGADO("G", "Pagado"),
     ENTREGADO("E", "Entregado"),
     CANCELADO("X", "Cancelado");
 

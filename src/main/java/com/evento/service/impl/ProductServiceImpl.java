@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.evento.ulti.EventoError.STOCK_NOT_EXIST;
+
 @RequiredArgsConstructor
 @Slf4j
 @Service
@@ -36,7 +38,8 @@ public class ProductServiceImpl implements ProductService {
             var stockList = stockRepository.getAllStockProduct(company);
 
             if (stockList.isEmpty()) {
-                throw new EventoException("0001", "No existe stock para la empresa {}");
+                log.info("No se encontró stock para la empresa {}", company);
+                throw new EventoException(STOCK_NOT_EXIST, "No existe stock para la empresa: ".concat(String.valueOf(company)));
             }
 
             // Productos ocupados en la fecha
