@@ -2,6 +2,7 @@ package com.evento.controller;
 
 import com.evento.model.ApiResponse;
 import com.evento.model.OrdenDTO;
+import com.evento.model.UpdateOrdenDTO;
 import com.evento.model.UpdateStatusOrdenDTO;
 import jakarta.validation.Valid;
 import lombok.NonNull;
@@ -58,4 +59,24 @@ public interface OrdenController {
      */
     @PutMapping("/updateStatus")
     ResponseEntity<@NonNull ApiResponse> updateStatusOrden(@Valid @RequestBody UpdateStatusOrdenDTO req);
+
+    /**
+     * Actualiza parcialmente la información de un pedido existente.
+     * <p>
+     * Este método permite modificar uno o varios campos de un pedido ya registrado,
+     * según los valores proporcionados en el objeto {@link UpdateOrdenDTO}.
+     * <br><br>
+     * El pedido es identificado por su identificador único y solo los campos
+     * presentes en la solicitud serán actualizados.
+     *
+     * @param req objeto que contiene los datos a actualizar del pedido.
+     *            Debe incluir el identificador del pedido y los campos que
+     *            se desean modificar.
+     * @return {@link ResponseEntity} con un {@link ApiResponse} que indica
+     * el resultado de la operación, incluyendo información de éxito
+     * o error según corresponda.
+     * @throws IllegalArgumentException si la información suministrada es inválida.
+     */
+    @PatchMapping("/updateOrden")
+    ResponseEntity<@NonNull ApiResponse> updateOrden(@Valid @RequestBody UpdateOrdenDTO req);
 }

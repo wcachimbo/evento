@@ -3,6 +3,7 @@ package com.evento.controller.impl;
 import com.evento.controller.OrdenController;
 import com.evento.model.ApiResponse;
 import com.evento.model.OrdenDTO;
+import com.evento.model.UpdateOrdenDTO;
 import com.evento.model.UpdateStatusOrdenDTO;
 import com.evento.service.OrdenService;
 import lombok.NonNull;
@@ -58,6 +59,20 @@ public class OrdenControllerImpl implements OrdenController {
                 orden
         );
         log.info("Actualización de pedido correctamente");
+
+        return ResponseEntity.ok(resp);
+    }
+
+    @Override
+    public ResponseEntity<@NonNull ApiResponse> updateOrden(UpdateOrdenDTO req) {
+
+        var orden = ordenService.updateOrden(req);
+        var resp = new ApiResponse<>(
+                "0000",
+                "Actualización de pedido correctamente",
+                orden
+        );
+        log.info("Actualización de los datos del pedido correctamente");
 
         return ResponseEntity.ok(resp);
     }

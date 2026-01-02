@@ -39,9 +39,16 @@ public class OrdenServiceImpl implements OrdenService {
         try {
             String status = getStatus(req.getSubTotal(), req.getTotal());
 
+            ///  Crear o guardar el cliente
+            Long clientID = clientRepository.clientOrden(req.getCompany(), req.getPhone(), req.getName(), req.getAddress())
+                    .orElseThrow(() ->
+                            new EventoException(CLIENTE_NO_VALIDO)
+                    );
+
             /// Crear la orden
             Long ordenId = ordenRepository.insertOrden(
                     req.getCompany(),
+                    clientID,
                     req.getDate(),
                     status,
                     req.getSubTotal(),
@@ -51,11 +58,7 @@ public class OrdenServiceImpl implements OrdenService {
                     new EventoException(ORDEN_NO_CREADA)
             );
 
-            ///  Crear o guardar el cliente
-            Long clientID = clientRepository.clientOrden(req.getCompany(), req.getPhone(), req.getName(), req.getAddress())
-                    .orElseThrow(() ->
-                            new EventoException(CLIENTE_NO_VALIDO)
-                    );
+
             /// Insertar detalle por cada producto
             InsertProduct(req.getProducts(), req.getCompany(), ordenId, clientID);
 
@@ -184,11 +187,11 @@ public class OrdenServiceImpl implements OrdenService {
                 .orElseThrow(() -> new EventoException(ERROR_UPDATE_ORDEN));
 
         ///  4. Obtener la información del cliente
-        var client = clientRepository.infoClient(req.getCompany(), req.getPhone())
+        var client = clientRepository.infoClient(req.getCompany(), orden.getPhone())
                 .orElseThrow(() -> new EventoException(ERROR_INF_CLIENT, "Cliente no existe: "+req.getPhone()));
 
         ///  5. Obtener la información del cliente
-        var updClient = clientRepository.updateClient(req.getCompany(), req.getPhone(), client.getNameClient(), client.getAddress(),
+        var updClient = clientRepository.updateClient(req.getCompany(), orden.getPhone(), client.getNameClient(), client.getAddress(),
                         req.getName(), req.getAddress())
                 .orElseThrow(() -> new EventoException(ERROR_UPDATE_CLIENT));
 

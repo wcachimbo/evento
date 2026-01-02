@@ -75,9 +75,9 @@ public class ClientRepositoryImp implements ClientRepository {
     public Optional<ClientInfo> infoClient(int company, String phone) {
         try {
             return jdbcClient.sql("""
-                            SELECT id_client, company, name_client, phone, address, alias, description
+                            SELECT id_client AS idClient , company, name_client AS nameClient, phone, address, alias, description
                             FROM client
-                            WHERE id_client=: idClient AND phone=: phone
+                            WHERE company =:company AND phone =:phone
                             """)
                     .param("company", company)
                     .param("phone", phone)
@@ -100,13 +100,13 @@ public class ClientRepositoryImp implements ClientRepository {
 
             // Nombre del cliente
             if (!Objects.equals(oldName, newName)) {
-                sql.append("newName = :newName, ");
+                sql.append("name_client = :newName, ");
                 params.put("newName", newName);
                 hasChanges = true;
             }
             // Dirección del cliente
             if (!Objects.equals(oldAddress, newAddress)) {
-                sql.append("newAddress = :newAddress, ");
+                sql.append("address = :newAddress, ");
                 params.put("newAddress", newAddress);
                 hasChanges = true;
             }
@@ -119,7 +119,7 @@ public class ClientRepositoryImp implements ClientRepository {
             // Quitar última coma
             sql.setLength(sql.length() - 2);
 
-            sql.append(" WHERE phone = :phone AND company = :company");
+            sql.append(" WHERE phone =:phone AND company =:company");
 
             params.put("phone", phone);
             params.put("company", company);
@@ -131,7 +131,7 @@ public class ClientRepositoryImp implements ClientRepository {
             return Optional.of(rowsUpdated > 0);
         } catch (Exception e) {
             log.error(
-                    "Error actualizando cliente [company={}, idOrden={}]",phone, company, e);
+                    "Error actualizando cliente [company={}, idOrden={}]", phone, company, e);
             throw new EventoException(ERROR_UPDATE_CLIENT);
         }
     }

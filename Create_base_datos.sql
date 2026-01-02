@@ -121,3 +121,11 @@ ALTER TABLE orden ADD subtotal  NUMERIC(12,2) NOT NULL;
 ALTER TABLE orden ADD total  NUMERIC(12,2) NOT NULL;
 
 
+ALTER TABLE orden
+    ADD COLUMN client_id BIGINT NOT NULL;
+
+ALTER TABLE orden
+    ADD CONSTRAINT fk_orden_client
+        FOREIGN KEY (client_id)
+            REFERENCES public.client (id_client);
+

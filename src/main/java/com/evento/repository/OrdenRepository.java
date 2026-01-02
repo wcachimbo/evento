@@ -43,6 +43,7 @@ public interface OrdenRepository {
      */
     Optional<Long> insertOrden(
             int company,
+            Long clientId,
             Integer ordenDate,
             String status,
             BigDecimal subtotal,

@@ -9,7 +9,9 @@ public enum Status {
     CONFIRMADO("C", "Confirmado"),
     PAGADO("G", "Pagado"),
     ENTREGADO("E", "Entregado"),
-    CANCELADO("X", "Cancelado");
+    CANCELADO("X", "Cancelado"),
+    FINALIZADO("F", "Finalizado"),
+    ;
 
     private final String codigo;
     private final String descripcion;

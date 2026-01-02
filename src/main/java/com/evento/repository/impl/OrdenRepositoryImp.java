@@ -72,6 +72,7 @@ public class OrdenRepositoryImp implements OrdenRepository {
     @Override
     public Optional<Long> insertOrden(
             int company,
+            Long clientId,
             Integer ordenDate,
             String status,
             BigDecimal subtotal,
@@ -81,12 +82,13 @@ public class OrdenRepositoryImp implements OrdenRepository {
         try {
             return jdbcClient.sql("""
                             INSERT INTO "orden"
-                            (company, orden_date, status, subtotal, total, description)
+                            (company, client_id, orden_date, status, subtotal, total, description)
                             VALUES
-                            (:company, :ordenDate, :status, :subtotal, :total, :description)
+                            (:company, :clientId,:ordenDate, :status, :subtotal, :total, :description)
                             RETURNING id_orden
                             """)
                     .param("company", company)
+                    .param("clientId", clientId)
                     .param("ordenDate", ordenDate)
                     .param("status", status)
                     .param("subtotal", subtotal)
@@ -179,9 +181,22 @@ public class OrdenRepositoryImp implements OrdenRepository {
     public Optional<OrdenQuerys> getOrdenID(int company, Long idOrden) {
         try {
             return jdbcClient.sql("""
-                            SELECT orden_date as date, status, description, subtotal, total
-                            FROM orden
-                            WHERE id_orden= :idOrden AND company= :company
+                            SELECT
+                                o.id_orden        AS idOrden,
+                                o.company,
+                                o.orden_date      AS date,
+                                o.status,
+                                o.description,
+                                o.subtotal,
+                                o.total,
+                                c.name_client     AS clientName,
+                                c.phone,
+                                c.address
+                            FROM orden o
+                            JOIN client c
+                                ON c.id_client = o.client_id
+                            WHERE o.id_orden = :idOrden
+                              AND o.company  = :company;
                             """)
                     .param("idOrden", idOrden)
                     .param("company", company)
