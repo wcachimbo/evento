@@ -17,6 +17,9 @@ public enum EventoError {
     ERROR_INF_ORDEN("0011", "No se pudo obtener la información del pedido"),
     ERROR_INF_CLIENT("0012", "No se pudo obtener la información del cliente"),
     ERROR_STATUS_ORDEN("0013", "No se puede editar una orden entregada o cancelada"),
+    ERROR_GET_PRODUCT("0014", "No se puede obtener la información de los productos"),
+    ORDEN_EMPTY_COLLECT("0015", "No hay pedidos pendientes por recoger"),
+    PRODUCT_QUANTITY_IS_BIGGER("0016", "La cantidad enviada de los productos es mayor a la disponible"),
     ERROR_INTERNO("9999", "Error interno del sistema"),
     ;
 

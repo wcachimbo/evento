@@ -2,6 +2,8 @@ package com.evento.service;
 
 import com.evento.model.*;
 
+import java.util.List;
+
 
 public interface OrdenService {
     /**
@@ -77,4 +79,25 @@ public interface OrdenService {
      * {@code false} si no se realizaron cambios o la actualización falló
      */
     boolean updateOrden(UpdateOrdenDTO req);
+
+    /**
+     * Ejecuta la lógica de negocio para obtener los pedidos pendientes por recoger
+     * asociados a una empresa.
+     * <p>
+     * Este método coordina la consulta de los pedidos que se encuentran en estado
+     * pendiente de recogida y realiza el procesamiento necesario para construir
+     * la respuesta de dominio que será consumida por capas superiores.
+     * La información retornada agrupa los datos relevantes de cada pedido,
+     * incluyendo información de la orden, detalles de los productos y montos
+     * asociados, de acuerdo con las reglas de negocio definidas.
+     * En caso de no existir pedidos pendientes por recoger para la empresa indicada,
+     * el método puede retornar una estructura vacía o lanzar una excepción de negocio,
+     * dependiendo de la implementación.
+     *
+     * @param company Identificador de la empresa para la cual se desean consultar
+     *                los pedidos pendientes por recoger.
+     * @return {@link OrdenQuerys} que contiene el conjunto de pedidos pendientes
+     * por recoger, procesados según las reglas de negocio establecidas.
+     */
+    List<OrdenQuerys> getCollectOrden(Long company);
 }

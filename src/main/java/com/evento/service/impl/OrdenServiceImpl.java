@@ -6,6 +6,7 @@ import com.evento.repository.ClientRepository;
 import com.evento.repository.OrdenRepository;
 import com.evento.repository.DetailOrdenRepository;
 import com.evento.service.OrdenService;
+import com.evento.service.ProductService;
 import com.evento.ulti.WhatsAppMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +20,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.evento.ulti.EventoError.*;
 import static com.evento.ulti.Status.*;
@@ -28,6 +30,7 @@ import static com.evento.ulti.Status.*;
 @Service
 public class OrdenServiceImpl implements OrdenService {
 
+    private final ProductService productService;
     private final OrdenRepository ordenRepository;
     private final WhatsAppMessage whatsAppMessage;
     private final ClientRepository clientRepository;
@@ -37,6 +40,13 @@ public class OrdenServiceImpl implements OrdenService {
     @Transactional(rollbackFor = Exception.class)
     public OrdenCreate createOrden(OrdenDTO req) {
         try {
+            var valid = validateProductStock(req.getProducts(), req.getCompany(), req.getDate());
+
+            if (!valid) {
+                log.info("La cantidad enviada de los producto no esta disponible {}", req.getProducts());
+                throw new EventoException(PRODUCT_QUANTITY_IS_BIGGER, "La cantidad enviada de los producto es mayor a la disponible".concat(req.getProducts().toString()));
+            }
+
             String status = getStatus(req.getSubTotal(), req.getTotal());
 
             ///  Crear o guardar el cliente
@@ -175,11 +185,11 @@ public class OrdenServiceImpl implements OrdenService {
 
         /// 1. Obtener la orden actual
         var orden = ordenRepository.getOrdenID(req.getCompany(), req.getIdOrden())
-                .orElseThrow(() -> new EventoException(ERROR_INF_ORDEN, "La orden no existe: "+ req.getIdOrden()));
+                .orElseThrow(() -> new EventoException(ERROR_INF_ORDEN, "La orden no existe: " + req.getIdOrden()));
 
         /// 2. Validar estado
         if (orden.getStatus().equals("E") || orden.getStatus().equals("X")) {
-            throw new EventoException(ERROR_STATUS_ORDEN," El estado no se puede actualizar: " + orden.getStatus());
+            throw new EventoException(ERROR_STATUS_ORDEN, " El estado no se puede actualizar: " + orden.getStatus());
         }
 
         ///  3. Actualizar la información de la orden
@@ -188,7 +198,7 @@ public class OrdenServiceImpl implements OrdenService {
 
         ///  4. Obtener la información del cliente
         var client = clientRepository.infoClient(req.getCompany(), orden.getPhone())
-                .orElseThrow(() -> new EventoException(ERROR_INF_CLIENT, "Cliente no existe: "+req.getPhone()));
+                .orElseThrow(() -> new EventoException(ERROR_INF_CLIENT, "Cliente no existe: " + req.getPhone()));
 
         ///  5. Obtener la información del cliente
         var updClient = clientRepository.updateClient(req.getCompany(), orden.getPhone(), client.getNameClient(), client.getAddress(),
@@ -197,10 +207,18 @@ public class OrdenServiceImpl implements OrdenService {
 
         if (req.isChangeProduct()) {
 
-            ///  6. Elimina el detalle del pedido
+            ///  6. Validar que la cantidad de productos este disponible
+            var valid = validateProductStock(req.getProducts(), req.getCompany(), req.getDate());
+
+            if (!valid) {
+                log.info("La cantidad enviada de los productos no esta disponible para:  {}", req.getProducts());
+                throw new EventoException(PRODUCT_QUANTITY_IS_BIGGER, "La cantidad enviada de los producto es mayor a la disponible".concat(req.getProducts().toString()));
+            }
+
+            ///  7. Elimina el detalle del pedido
             detailOrdenRepository.deleteOrdenProduct(req.getCompany(), req.getIdOrden());
 
-            /// 7. Insertar todos los productos de nuevo
+            /// 8. Insertar todos los productos de nuevo
             InsertProduct(req.getProducts(), req.getCompany(), req.getIdOrden(), client.getIdClient());
         }
 
@@ -243,5 +261,86 @@ public class OrdenServiceImpl implements OrdenService {
         }
     }
 
+    @Override
+    public List<OrdenQuerys> getCollectOrden(Long company) {
+
+        OrdenQuerys order = null;
+
+        var resp = ordenRepository.getOrdenCollect(company);
+
+        if (resp.isEmpty()) {
+            log.info("No se encontraron pedidos pendientes por recoger para la empresa {}", company);
+            throw new EventoException(ORDEN_EMPTY_COLLECT);
+        }
+        try {
+
+            Map<Long, OrdenQuerys> orders = new LinkedHashMap<>();
+
+            for (OrdenDetail d : resp) {
+
+                order = orders.computeIfAbsent(d.idOrden(), id -> {
+                    OrdenQuerys o = new OrdenQuerys();
+                    o.setIdOrden(id);
+                    o.setCompany(d.company());
+                    o.setDate(d.ordenDate());
+                    o.setPhone(d.phone());
+                    o.setAddress(d.address());
+                    o.setNameClient(d.nameClient());
+                    o.setStatus(d.status());
+                    o.setSubTotal(d.subtotal());
+                    o.setTotal(d.total());
+                    o.setDescription(d.description());
+                    o.setProducts(new ArrayList<>());
+                    return o;
+                });
+
+                ProductDTO product = new ProductDTO();
+                product.setIdProducto(d.productId());
+                product.setName(d.nombreProducto());
+                product.setUnitValue(d.quantity());
+                product.setUnitPrice(d.priceUnit());
+                order.getProducts().add(product);
+            }
+
+            return new ArrayList<>(orders.values());
+
+        } catch (Exception e) {
+            log.error("Error consultando los pedidos {}", e.getMessage(), e);
+            throw new EventoException("9999", "Error consultando los pedidos, intente de nuevo");
+        }
+
+    }
+
+    private boolean validateProductStock(List<ProductDTO> products, int company, Integer date) {
+
+        // Obtener disponibilidad
+        List<Product> disponibilidadProducto =
+                productService.getListProduct(products, company, date);
+
+        // Convertir a Map <productId, available>
+        Map<Long, Integer> disponibilidadMap = disponibilidadProducto.stream()
+                .collect(Collectors.toMap(
+                        Product::id_product,
+                        p -> p.available() != null ? p.available() : 0
+                ));
+
+        // Validar uno a uno
+        for (ProductDTO prod : products) {
+
+            Integer available = disponibilidadMap.get((long) prod.getIdProducto());
+
+            // Producto no existe en stock
+            if (available == null) {
+                return false;
+            }
+
+            // Cantidad solicitada mayor a la disponible
+            if (prod.getUnitValue() > available) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 
 }

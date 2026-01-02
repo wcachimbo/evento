@@ -57,7 +57,7 @@ public interface OrdenController {
      * @return {@link ResponseEntity} con un {@link ApiResponse} indicando
      * si la operación fue exitosa
      */
-    @PutMapping("/updateStatus")
+    @PatchMapping("/updateStatus")
     ResponseEntity<@NonNull ApiResponse> updateStatusOrden(@Valid @RequestBody UpdateStatusOrdenDTO req);
 
     /**
@@ -79,4 +79,29 @@ public interface OrdenController {
      */
     @PatchMapping("/updateOrden")
     ResponseEntity<@NonNull ApiResponse> updateOrden(@Valid @RequestBody UpdateOrdenDTO req);
+
+    /**
+     * Endpoint REST que permite obtener el listado de pedidos listos para ser recogidos
+     * asociados a una empresa.
+     * Este punto de entrada recibe el identificador de la empresa como parámetro
+     * de consulta y delega al servicio correspondiente la obtención y procesamiento
+     * de los pedidos que se encuentran en estado pendiente de recogida.
+     * La respuesta se devuelve envuelta en un {@link ApiResponse}, manteniendo
+     * un formato estándar para las respuestas de la API.
+     * Posibles respuestas HTTP:
+     * <ul>
+     *   <li><b>200 OK</b>: La consulta se realizó correctamente y se retorna
+     *       el listado de pedidos pendientes por recoger.</li>
+     *   <li><b>400 Bad Request</b>: El parámetro {@code company} no es válido.</li>
+     *   <li><b>404 Not Found</b>: No existen pedidos pendientes por recoger para
+     *       la empresa indicada.</li>
+     *
+     * @param company Identificador de la empresa para la cual se desean consultar
+     *                los pedidos listos para ser recogidos.
+     * @return {@link ResponseEntity} que contiene un {@link ApiResponse} con el
+     * listado de pedidos pendientes por recoger, o un mensaje de error
+     * en caso de que la operación no pueda completarse.
+     */
+    @GetMapping("/getOrdenCollect")
+    ResponseEntity<@NonNull ApiResponse> getOrdenCollect(@RequestParam Long company);
 }

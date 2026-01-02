@@ -76,4 +76,19 @@ public class OrdenControllerImpl implements OrdenController {
 
         return ResponseEntity.ok(resp);
     }
+
+    @Override
+    public ResponseEntity<@NonNull ApiResponse> getOrdenCollect(Long company) {
+
+        var orden = ordenService.getCollectOrden(company);
+        var resp = new ApiResponse<>(
+                "0000",
+                "Consulta exitosa de pedidos pendientes por entregar ",
+                orden
+        );
+        log.info("Consulta exitosa de pedidos pendientes por entregar");
+
+        return ResponseEntity.ok(resp);
+    }
+
 }

@@ -2,7 +2,7 @@ package com.evento.service.impl;
 
 import com.evento.exception.EventoException;
 import com.evento.model.Product;
-import com.evento.model.Stock;
+import com.evento.model.ProductDTO;
 import com.evento.repository.OrdenRepository;
 import com.evento.repository.StockRepository;
 import com.evento.service.ProductService;
@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.evento.ulti.EventoError.ERROR_GET_PRODUCT;
 import static com.evento.ulti.EventoError.STOCK_NOT_EXIST;
 
 @RequiredArgsConstructor
@@ -78,6 +79,32 @@ public class ProductServiceImpl implements ProductService {
         } catch (Exception e) {
             log.error("Error obteniendo los producto de la empresa {} {}", company, e.getMessage());
             throw new EventoException("9999", "Error obteniendo el stock de los productos");
+        }
+    }
+
+    @Override
+    public List<Product> getListProduct(List<ProductDTO> products, int company, Integer date) {
+        try {
+
+            List<Integer> productIds = products.stream()
+                    .map(ProductDTO::getIdProducto)
+                    .toList();
+
+            List<Product> result =
+                    stockRepository.getAvailableProducts(company, date, productIds);
+
+            if (result.isEmpty()) {
+                throw new EventoException(
+                        STOCK_NOT_EXIST,
+                        "No hay stock disponible para la fecha"
+                );
+            }
+
+            return result;
+
+        } catch (Exception e) {
+            log.error("Error realizando la validación de los producto para la empresa {} {}", company, e.getMessage());
+            throw new EventoException(ERROR_GET_PRODUCT);
         }
     }
 }

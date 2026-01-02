@@ -131,4 +131,11 @@ public interface OrdenRepository {
      * realizaron cambios o si el pedido no pudo ser actualizado
      */
     Optional<Boolean> updateOrdenStatus(OrdenQuerys detailOld, UpdateOrdenDTO detailNew);
+
+    /**
+     * Consulta que me permite obtener el listado de pedidos pendiente por recoger
+     * @param company
+     * @return
+     */
+    List<OrdenDetail> getOrdenCollect(Long company);
 }

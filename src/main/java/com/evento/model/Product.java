@@ -10,8 +10,8 @@ public record Product(
         Boolean status,
         String color,
         String imagen,
-        int total_quantity,
-        int available
+        Integer total_quantity,
+        Integer available
 
 ) {
 }

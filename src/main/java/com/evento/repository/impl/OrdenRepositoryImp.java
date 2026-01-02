@@ -272,5 +272,49 @@ public class OrdenRepositoryImp implements OrdenRepository {
         }
     }
 
+    @Override
+    public List<OrdenDetail> getOrdenCollect(Long company) {
+        try {
+            return jdbcClient.sql("""
+                            SELECT
+                                 o.id_orden          AS idOrden,
+                                 o.company           AS company,
+                                 o.orden_date        AS ordenDate,
+                                 c.address           AS address,
+                                 c.name_client       AS nameClient,
+                                 o.status            AS status,
+                                 c.phone             AS phone,
+                                 o.subtotal          AS subtotal,
+                                 o.total             AS total,
+                                 o.description       AS description,
+                                 d.id_detail         AS idDetail,
+                                 d.product_id        AS productId,
+                                 d.quantity          AS quantity,
+                                 d.priceunit         AS priceUnit,
+                                 d.amount            AS amount,
+                                 p.nombre            AS nombreProducto,
+                                 p.description       AS productDescription
+                             FROM public."orden" o
+                             JOIN detail_orden d
+                                 ON d.orden_id = o.id_orden
+                                AND d.company  = o.company
+                             JOIN client c
+                                 ON c.id_client = d.client_id
+                                AND c.company   = d.company
+                             JOIN product p
+                                 ON p.id_product = d.product_id
+                                AND p.company    = d.company
+                             WHERE o.status = 'E'
+                               AND o.company = :company
+                             ORDER BY o.create_date DESC, o.id_orden;
+                            """)
+                    .param("company", company)
+                    .query(OrdenDetail.class)
+                    .list();
+        } catch (Exception e) {
+            log.error("Error obteniendo pedidos", e);
+            throw new EventoException("9999", "Error  obteniendo pedidos");
+        }
+    }
 
 }

@@ -16,8 +16,8 @@ public class UpdateStatusOrdenDTO {
 
     @NotBlank(message = "El estado no puede estar vacío")
     @Pattern(
-            regexp = "E|X",
-            message = "El estado del pedido debe ser 'E' (Entregado) o 'X' (Cancelado)"
+            regexp = "E|X|F",
+            message = "El estado del pedido debe ser 'E' (Entregado) o 'X' (Cancelado) o 'F' (Finalizado)"
     )
     private String status;
 
