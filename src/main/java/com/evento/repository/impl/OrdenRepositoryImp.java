@@ -14,6 +14,7 @@ import org.springframework.stereotype.Repository;
 import java.math.BigDecimal;
 import java.util.*;
 
+import static com.evento.service.impl.OrdenServiceImpl.getStatus;
 import static com.evento.ulti.EventoError.*;
 
 @Repository
@@ -45,7 +46,7 @@ public class OrdenRepositoryImp implements OrdenRepository {
                             LEFT JOIN "orden" o
                                 ON o.id_orden = d.orden_id
                                AND o.company = :company
-                            
+                               AND o.status IN ('P','C','G','E')
                             WHERE s.company = :company
                             
                             GROUP BY
@@ -232,10 +233,13 @@ public class OrdenRepositoryImp implements OrdenRepository {
                 hasChanges = true;
             }
 
-            // Subtotal
+            // Subtotal y estado
             if (detailOld.getSubTotal().compareTo(detailNew.getSubTotal()) != 0) {
                 sql.append("subtotal = :subtotal, ");
                 params.put("subtotal", detailNew.getSubTotal());
+                String status = getStatus(detailNew.getSubTotal(), detailNew.getTotal());
+                sql.append("status = :status, ");
+                params.put("status", status);
                 hasChanges = true;
             }
 

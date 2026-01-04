@@ -72,7 +72,7 @@ public class OrdenServiceImpl implements OrdenService {
             /// Insertar detalle por cada producto
             InsertProduct(req.getProducts(), req.getCompany(), ordenId, clientID);
 
-            String message = whatsAppMessage.buildMessage(req, ordenId);
+            String message = whatsAppMessage.buildMessage(req, ordenId, status);
             String whatsappLink = whatsAppMessage.buildWhatsAppLink(req.getPhone(), message);
 
             return new OrdenCreate(
@@ -211,7 +211,7 @@ public class OrdenServiceImpl implements OrdenService {
             var valid = validateProductStock(req.getProducts(), req.getCompany(), req.getDate());
 
             if (!valid) {
-                log.info("La cantidad enviada de los productos no esta disponible para:  {}", req.getProducts());
+                log.warn("La cantidad enviada de los productos no esta disponible para:  {}", req.getProducts());
                 throw new EventoException(PRODUCT_QUANTITY_IS_BIGGER, "La cantidad enviada de los producto es mayor a la disponible".concat(req.getProducts().toString()));
             }
 
@@ -230,7 +230,7 @@ public class OrdenServiceImpl implements OrdenService {
         return LocalDate.parse(String.valueOf(ordenDate), formatter);
     }
 
-    private static String getStatus(BigDecimal subTotal, BigDecimal total) {
+    public static String getStatus(BigDecimal subTotal, BigDecimal total) {
 
         if (subTotal.compareTo(total) == 0) {
             return PAGADO.getCodigo();
@@ -314,8 +314,7 @@ public class OrdenServiceImpl implements OrdenService {
     private boolean validateProductStock(List<ProductDTO> products, int company, Integer date) {
 
         // Obtener disponibilidad
-        List<Product> disponibilidadProducto =
-                productService.getListProduct(products, company, date);
+        var disponibilidadProducto = productService.getListProduct(products, company, date);
 
         // Convertir a Map <productId, available>
         Map<Long, Integer> disponibilidadMap = disponibilidadProducto.stream()
@@ -332,6 +331,9 @@ public class OrdenServiceImpl implements OrdenService {
             // Producto no existe en stock
             if (available == null) {
                 return false;
+            }
+            if (prod.getUnitValue() < available) {
+                continue;
             }
 
             // Cantidad solicitada mayor a la disponible

@@ -70,6 +70,7 @@ public class StockRepositoryImp implements StockRepository {
                                     ON o.id_orden = d.orden_id
                                 WHERE o.company = :company
                                   AND o.orden_date = :date
+                                  AND o.status IN ('P','C','G','E')
                                 GROUP BY d.product_id
                             ) o ON o.product_id = p.id_product
                             WHERE s.company = :company

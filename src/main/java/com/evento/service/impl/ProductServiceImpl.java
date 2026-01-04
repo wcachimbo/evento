@@ -90,8 +90,7 @@ public class ProductServiceImpl implements ProductService {
                     .map(ProductDTO::getIdProducto)
                     .toList();
 
-            List<Product> result =
-                    stockRepository.getAvailableProducts(company, date, productIds);
+            var result = stockRepository.getAvailableProducts(company, date, productIds);
 
             if (result.isEmpty()) {
                 throw new EventoException(

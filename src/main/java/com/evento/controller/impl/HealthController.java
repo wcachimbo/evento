@@ -16,7 +16,6 @@ public class HealthController {
      */
     @GetMapping("/status/service")
     public String health() {
-        log.info("Health check endpoint called.");
         return "Service Up!!!!";
     }
 }
