@@ -40,7 +40,7 @@ public class OrdenServiceImpl implements OrdenService {
     @Transactional(rollbackFor = Exception.class)
     public OrdenCreate createOrden(OrdenDTO req) {
         try {
-            var valid = validateProductStock(req.getProducts(), req.getCompany(), req.getDate());
+            var valid = validateProductStock(req.getProducts(), req.getCompany(), req.getDate(), false);
 
             if (!valid) {
                 log.info("La cantidad enviada de los producto no esta disponible {}", req.getProducts());
@@ -207,8 +207,8 @@ public class OrdenServiceImpl implements OrdenService {
 
         if (req.isChangeProduct()) {
 
-            ///  6. Validar que la cantidad de productos este disponible
-            var valid = validateProductStock(req.getProducts(), req.getCompany(), req.getDate());
+            ///  6. Validar que la cantidad de productos este disponible 1
+            var valid = validateProductStock(req.getProducts(), req.getCompany(), req.getDate(), req.isChangeProduct());
 
             if (!valid) {
                 log.warn("La cantidad enviada de los productos no esta disponible para:  {}", req.getProducts());
@@ -311,7 +311,7 @@ public class OrdenServiceImpl implements OrdenService {
 
     }
 
-    private boolean validateProductStock(List<ProductDTO> products, int company, Integer date) {
+    private boolean validateProductStock(List<ProductDTO> products, int company, Integer date, boolean isUpdate) {
 
         // Obtener disponibilidad
         var disponibilidadProducto = productService.getListProduct(products, company, date);
@@ -332,6 +332,9 @@ public class OrdenServiceImpl implements OrdenService {
             if (available == null) {
                 return false;
             }
+
+            available = isUpdate ? available + prod.getUnitValue() : available;
+
             if (prod.getUnitValue() < available) {
                 continue;
             }
